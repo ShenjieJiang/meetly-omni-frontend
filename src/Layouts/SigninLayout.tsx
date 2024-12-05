@@ -1,8 +1,8 @@
 import React, { ReactNode } from "react";
-import magnifier from "@/assets/icons/magnifier.png";
-import star from "@/assets/icons/star.png";
-import document from "@/assets/icons/document.png";
-import dashboard from "@/assets/images/dashboard.png";
+import magnifier from "@/assets/icons/magnifier.webp";
+import star from "@/assets/icons/star.webp";
+import document from "@/assets/icons/document.webp";
+import dashboard from "@/assets/images/dashboard.webp";
 import profile_mark from "@/assets/icons/profile_mark.png";
 import profile_rachel from "@/assets/icons/profile_rachel.png";
 
@@ -11,7 +11,7 @@ const SignInLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     <>
       <div className="relative mx-32">
         <div className="flex justify-center">
-          <img src={dashboard} alt="Dashboard Image" />
+          <img src={dashboard} alt="Dashboard Image" className="w-1/4"/>
         </div>
         <img
           src={magnifier}
@@ -23,8 +23,6 @@ const SignInLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           alt="Rachel Profile"
           className="absolute right-32 bottom-14 h-32 drop-shadow-lg"
         />
-        
-       
       </div>
       <div className="relative mx-32 mt-10">
         <div className="flex justify-center">{children}</div>
@@ -41,7 +39,7 @@ const SignInLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           alt="Star Icon"
           className="absolute right-64 bottom-5 w-20 h-20"
         />
-         <img
+        <img
           src={profile_mark}
           alt="Mark Profile"
           className="absolute left-32 bottom-5 h-32 drop-shadow-lg"

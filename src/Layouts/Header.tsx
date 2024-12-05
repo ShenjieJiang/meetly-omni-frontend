@@ -2,8 +2,7 @@ import React from "react";
 
 const Header: React.FC = () => {
   return (
-    <header className="flex mt-16 ml-32 mb-4">
-      {/* Logo */}
+    <header className="flex mt-16 ml-32 mb-8"> 
       <img
         src="/logo.png"
         alt="App Logo"
