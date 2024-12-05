@@ -15,9 +15,9 @@ const HomePage = () => {
         </Button>
         <Button
           className="bg-secondary text-white"
-          onClick={() => navigate("/register")}
+          onClick={() => navigate("/signup/step1")}
         >
-          Register
+          Signup
         </Button>
       </div>
     </>
