@@ -1,23 +1,23 @@
 import { createContext, useState, useContext, ReactNode, FC } from "react";
 
-interface FormState {
+type FormState = {
   companyName: string;
   email: string;
   password: string;
   name: string;
   phone: string;
-}
+};
 
-interface FormContextType {
+type FormContextType = {
   state: FormState;
   updateAction: (data: Partial<FormState>) => void;
-}
+};
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
-interface FormProviderProps {
+type FormProviderProps = {
   children: ReactNode;
-}
+};
 
 export const FormProvider: FC<FormProviderProps> = ({ children }) => {
   const [state, setState] = useState<FormState>({

@@ -26,7 +26,7 @@ const Step3: React.FC = () => {
     },
   });
   const { state, updateAction } = useFormContext();
-  console.log(state);
+
   const navigate = useNavigate();
 
   const onSubmit: SubmitHandler<FormData> = (data) => {

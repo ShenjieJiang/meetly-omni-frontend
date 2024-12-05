@@ -34,7 +34,6 @@ const Step4: React.FC = () => {
     updateAction(data);
 
     navigate("/signup/success");
-    console.log("data", state);
 
     //TODO: here will use api signup(data)
   };
