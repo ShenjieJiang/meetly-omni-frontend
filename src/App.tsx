@@ -1,16 +1,16 @@
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router";
-import About from "@/pages/About.tsx";
-import Login from "@/pages/Login.tsx";
-import Register from "@/pages/Register.tsx";
-import AuthLayout from "@/Layouts/AuthLayout";
-import HomePage from "@/pages/HomePage";
-import Step1 from "@/components/Step1";
-import Step2 from "@/components/Step2";
-import Step3 from "@/components/Step3";
-import Step4 from "@/components/Step4";
-import Success from "@/components/Success";
-import SignupLayout from "./Layouts/SignupLayout";
+import "@/App.css"
+import { BrowserRouter, Routes, Route } from "react-router"
+import About from "@/pages/About.tsx"
+import Login from "@/pages/Login.tsx"
+import Register from "@/pages/Register.tsx"
+import AuthLayout from "@/Layouts/AuthLayout"
+import HomePage from "@/pages/HomePage"
+import Step1 from "@/components/Step1"
+import Step2 from "@/components/Step2"
+import Step3 from "@/components/Step3"
+import Step4 from "@/components/Step4"
+import Success from "@/components/Success"
+import SignupLayout from "./Layouts/SignupLayout"
 
 function App() {
   return (
@@ -32,7 +32,7 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
-  );
+  )
 }
 
-export default App;
+export default App

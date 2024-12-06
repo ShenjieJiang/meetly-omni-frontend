@@ -1,6 +1,6 @@
-import { Outlet } from "react-router";
-import Header from "@/Layouts/Header";
-import Footer from "@/Layouts/Footer";
+import { Outlet } from "react-router"
+import Header from "@/Layouts/Header"
+import Footer from "@/Layouts/Footer"
 
 const AuthLayout = () => {
   return (
@@ -9,7 +9,7 @@ const AuthLayout = () => {
       <Outlet />
       <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default AuthLayout;
+export default AuthLayout

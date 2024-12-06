@@ -1,11 +1,11 @@
-import { useFormContext } from "@/context/FormContext";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { useFormContext } from "@/context/FormContext"
+import { SubmitHandler, useForm } from "react-hook-form"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { useNavigate } from "react-router"
+import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { ArrowLeft } from "lucide-react"
 
 const formSchema = z.object({
   email: z
@@ -13,8 +13,8 @@ const formSchema = z.object({
     .email("Please enter a valid email address")
     .min(1, "Email Address is required")
     .max(50, "Email Address must be less than 50 characters"),
-});
-type FormData = z.infer<typeof formSchema>;
+})
+type FormData = z.infer<typeof formSchema>
 
 const Step2: React.FC = () => {
   const { register, handleSubmit, formState } = useForm<FormData>({
@@ -22,16 +22,16 @@ const Step2: React.FC = () => {
     defaultValues: {
       email: "",
     },
-  });
-  const { state, updateAction } = useFormContext();
+  })
+  const { state, updateAction } = useFormContext()
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    updateAction(data);
+    updateAction(data)
 
-    navigate("/signup/step3");
-  };
+    navigate("/signup/step3")
+  }
 
   return (
     <>
@@ -58,7 +58,7 @@ const Step2: React.FC = () => {
         </div>
       </form>
     </>
-  );
-};
+  )
+}
 
-export default Step2;
+export default Step2

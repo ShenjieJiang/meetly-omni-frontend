@@ -1,11 +1,11 @@
-import { useFormContext } from "@/context/FormContext";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { useFormContext } from "@/context/FormContext"
+import { SubmitHandler, useForm } from "react-hook-form"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { useNavigate } from "react-router"
+import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { ArrowLeft } from "lucide-react"
 
 const formSchema = z.object({
   name: z
@@ -16,9 +16,9 @@ const formSchema = z.object({
     .string()
     .min(1, "Phone number is required")
     .max(15, "Phone number must be less than 15 characters"),
-});
+})
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = z.infer<typeof formSchema>
 
 const Step4: React.FC = () => {
   const { register, handleSubmit, formState } = useForm<FormData>({
@@ -27,16 +27,16 @@ const Step4: React.FC = () => {
       name: "",
       phone: "",
     },
-  });
-  const { state, updateAction } = useFormContext();
-  const navigate = useNavigate();
+  })
+  const { state, updateAction } = useFormContext()
+  const navigate = useNavigate()
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    updateAction(data);
+    updateAction(data)
 
-    navigate("/signup/success");
+    navigate("/signup/success")
 
     //TODO: here will use api signup(data)
-  };
+  }
 
   return (
     <>
@@ -72,7 +72,7 @@ const Step4: React.FC = () => {
         </div>
       </form>
     </>
-  );
-};
+  )
+}
 
-export default Step4;
+export default Step4
