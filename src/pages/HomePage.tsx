@@ -1,8 +1,8 @@
-import { useNavigate } from "react-router";
-import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router"
+import { Button } from "@/components/ui/button"
 
 const HomePage = () => {
-  let navigate = useNavigate();
+  const navigate = useNavigate()
   return (
     <>
       <div className="text-text-lightGrey flex justify-center items-center w-screen h-screen  gap-2 ">
@@ -21,7 +21,7 @@ const HomePage = () => {
         </Button>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default HomePage;
+export default HomePage

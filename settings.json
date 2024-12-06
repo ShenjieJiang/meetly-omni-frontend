@@ -1,0 +1,90 @@
+{
+  // Format code on save
+  "editor.formatOnSave": true,
+
+  // Use Prettier as the default formatter for common file types
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": false
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // Auto-fix ESLint issues on save
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // Enable ESLint for specific languages
+  "eslint.validate": ["javascript", "typescript", "javascriptreact", "typescriptreact", "vue"],
+
+  // Prettier configuration
+  "prettier.printWidth": 80, // Max line length
+  "prettier.tabWidth": 2, // Use 2 spaces per indentation level
+  "prettier.useTabs": false, // Use spaces instead of tabs
+  "prettier.semi": false, // No semicolons at the ends of statements
+  "prettier.singleQuote": false, // Use double quotes instead of single quotes
+  "prettier.trailingComma": "es5", // Trailing commas where valid in ES5
+  "prettier.bracketSpacing": true, // Spaces between brackets
+  "prettier.bracketSameLine": true, //closing bracket stays on the same line
+  "prettier.arrowParens": "always", // Include parentheses around arrow function parameters
+  "prettier.ignorePath": ".prettierignore", // VS Code respects .prettierignore
+
+  // General editor settings
+  "editor.tabSize": 2, // Default tab size
+  "editor.insertSpaces": true, // Insert spaces when pressing tab
+  "files.trimTrailingWhitespace": true, // Remove trailing whitespace on save
+  "files.insertFinalNewline": true, // Insert newline at end of file on save
+  "files.eol": "\n", // Use LF for line endings
+
+  // Auto-closing and auto-completion settings
+  "editor.autoClosingBrackets": "always",
+  "editor.autoClosingQuotes": "always",
+  "editor.autoSurround": "quotes",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+
+  // Intellisense settings for better autocompletion
+  "editor.suggestSelection": "first",
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "editor.suggest.showIcons": true,
+
+  // Git integration
+  "git.autofetch": true,
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+
+  // Miscellaneous
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "workbench.startupEditor": "newUntitledFile",
+  "tabnine.experimentalAutoImports": true,
+  "files.associations": {
+    ".husky/*": "shellscript"
+  }
+}

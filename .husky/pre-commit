@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# 1. Prettier Step
+echo "Running Prettier on staged files..." # Outputs a message
+npx prettier --write "$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(js|jsx|ts|tsx|json|css|scss|html|md|yaml|yml)$' | sed 's| |\\ |g')" --ignore-path .prettierignore --ignore-unknown
+git update-index --again  # Re-stage all files modified by Prettier
+
+# 2. ESLint Step
+echo "Running ESLint on staged files..."
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(ts|tsx|js|jsx)$')
+if [ -n "$STAGED_FILES" ]; then # Checks if any staged files match the pattern
+  npx eslint $STAGED_FILES --fix  # Attempt to auto-fix ESLint errors
+  git add $STAGED_FILES  # Re-stage only files modified by ESLint fixes
+
+  if [ $? -ne 0 ]; then # Checks the exit status of the previous command (npx eslint)
+    echo "Linting failed. Please fix the errors and try again."
+    exit 1  # Abort commit if linting fails
+  fi
+fi
+
+# 3. Test Step (if critical files are modified)
+#echo "Running tests (only if critical files changed)..."
+#if echo "$STAGED_FILES" | grep -q 'src/'; then # Checks if any staged files are in the src/ directory
+#  npm test  # Run the project's test suite
+#  if [ $? -ne 0 ]; then
+#    echo "Tests failed. Please fix the issues and try again."
+#    exit 1  # Abort commit if tests fail
+#  fi
+#fi
+
+# Final message
+echo "All checks passed! Proceeding with commit..."

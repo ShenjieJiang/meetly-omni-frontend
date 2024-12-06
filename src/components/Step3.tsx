@@ -1,11 +1,11 @@
-import { useFormContext } from "@/context/FormContext";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { useFormContext } from "@/context/FormContext"
+import { SubmitHandler, useForm } from "react-hook-form"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { useNavigate } from "react-router"
+import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { ArrowLeft } from "lucide-react"
 
 const formSchema = z.object({
   password: z
@@ -15,8 +15,8 @@ const formSchema = z.object({
     .regex(/[A-Z]/, "Password must include at least one uppercase letter")
     .regex(/[a-z]/, "Password must include at least one lowercase letter")
     .regex(/[0-9]/, "Password must include at least one number"),
-});
-type FormData = z.infer<typeof formSchema>;
+})
+type FormData = z.infer<typeof formSchema>
 
 const Step3: React.FC = () => {
   const { register, handleSubmit, formState } = useForm<FormData>({
@@ -24,16 +24,16 @@ const Step3: React.FC = () => {
     defaultValues: {
       password: "",
     },
-  });
-  const { state, updateAction } = useFormContext();
+  })
+  const { state, updateAction } = useFormContext()
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    updateAction(data);
+    updateAction(data)
 
-    navigate("/signup/step4");
-  };
+    navigate("/signup/step4")
+  }
 
   return (
     <>
@@ -64,7 +64,7 @@ const Step3: React.FC = () => {
         </div>
       </form>
     </>
-  );
-};
+  )
+}
 
-export default Step3;
+export default Step3

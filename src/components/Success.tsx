@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router"
+import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 const Success = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   return (
     <>
       <div>Email sent successfully.</div>
@@ -12,7 +12,7 @@ const Success = () => {
         <ArrowLeft /> Back to Home Page
       </Button>
     </>
-  );
-};
+  )
+}
 
-export default Success;
+export default Success
