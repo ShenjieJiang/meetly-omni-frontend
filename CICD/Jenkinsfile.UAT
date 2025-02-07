@@ -1,0 +1,70 @@
+pipeline {
+    agent { label 'frontend-agent' }
+    tools {
+        nodejs 'Name' 
+    } // reat:18.3.1     vite:^6.0.1
+
+    environment {
+
+        PATH = "$NODE_HOME/bin:$PATH"
+        
+        AWS_ACCESS_KEY_ID     = credentials('aws-credentials').username // replace with your AWS Access Key
+        AWS_SECRET_ACCESS_KEY = credentials('aws-credentials').password  // replace with your AWS Secret Access Key
+        AWS_REGION            = 'ap-southeast-2'  // e.g., us-west-2, ap-southeast-2
+        S3_BUCKET             = 'www.meetlyomni.com'  // replace with your S3 bucket name
+        BITBUCKET_CREDENTIALS_ID=credentials('bitbucket-credentials-id').password
+    }
+
+    stages {
+        stage('Bitbucket Checkout') {
+            steps {
+                echo "Checkout to main branch."
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: 'main']],
+                    userRemoteConfigs: [[url: 'https://ShnjieJiang@bitbucket.org/jiang_ren/meetly-omni-frontend.git']]
+                ])
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                echo "Installing dependencies..."
+                sh 'npm install'  // 安装 npm 依赖
+            }
+        }
+
+        stage('Build') {
+            environment {
+                LOG_LEVEL = 'INFO'
+            }
+            steps {
+                echo "Building release ${RELEASE} with log level ${LOG_LEVEL}..."
+                sh 'node --version'
+                sh 'npm run build'  // 执行构建命令（假设 package.json 中有 build 脚本）
+            }
+        }
+
+        // stage('Test') {
+        //     steps {
+        //         echo "Testing release ${RELEASE}"
+        //         sh 'npm test'  // 执行测试命令（假设 package.json 中有 test 脚本）
+        //     }
+        // }
+
+        stage('Deploy to AWS S3') {
+            steps {
+                echo "Deploy to AWS S3..."
+                withAWS(region: 'ap-southeast-2', credentials: 'aws-credentials')
+
+                {sh 'aws s3 sync ./dist s3://${S3_bucket} --delete'}
+            }
+        }
+    }
+
+    post {
+        failure {
+          echo "Release ${env.RELEASE}, FAILED."
+        }
+    }
+}
