@@ -1,7 +1,7 @@
 pipeline {
-    agent { label 'frontend-agent' }
+    agent any
     tools {
-        nodejs 'Name' 
+        nodejs 'NodeJS' 
     } // reat:18.3.1     vite:^6.0.1
 
     environment {
@@ -16,13 +16,13 @@ pipeline {
     }
 
     stages {
-        stage('Bitbucket Checkout') {
+        stage('Github Checkout') {
             steps {
                 echo "Checkout to main branch."
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: 'main']],
-                    userRemoteConfigs: [[url: 'https://ShnjieJiang@bitbucket.org/jiang_ren/meetly-omni-frontend.git']]
+                    userRemoteConfigs: [[url: 'https://github.com/ShenjieJiang/meetly-omni-frontend.git']]
                 ])
             }
         }
@@ -35,36 +35,140 @@ pipeline {
         }
 
         stage('Build') {
-            environment {
-                LOG_LEVEL = 'INFO'
-            }
+
             steps {
-                echo "Building release ${RELEASE} with log level ${LOG_LEVEL}..."
+                echo "Building..."
                 sh 'node --version'
                 sh 'npm run build'  // 执行构建命令（假设 package.json 中有 build 脚本）
             }
         }
 
-        // stage('Test') {
-        //     steps {
-        //         echo "Testing release ${RELEASE}"
-        //         sh 'npm test'  // 执行测试命令（假设 package.json 中有 test 脚本）
-        //     }
-        // }
-
         stage('Deploy to AWS S3') {
             steps {
                 echo "Deploy to AWS S3..."
-                withAWS(region: 'ap-southeast-2', credentials: 'aws-credentials')
+                withAWS(region: env.AWS_region, credentials: env.AWS_credentials)
+                    s3Delete(bucket: env.S3_Bucket, path: "")
 
-                {sh 'aws s3 sync ./dist s3://${S3_bucket} --delete'}
+                    s3Upload(bucket: env.S3_Bucket, 
+                    includePathPattern: '**/*', workingDir: "${S3_WORKING_DIR}" 
+
             }
         }
     }
 
     post {
-        failure {
-          echo "Release ${env.RELEASE}, FAILED."
+        // Send notification to Discord on build success
+        success {
+            script {
+                // Get the last commit information
+                def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
+                def commitAuthor = sh(script: "git log -1 --pretty=%an", returnStdout: true).trim()
+
+                def description = """
+                **Build Successful!**
+                Project Repo: ${env.JOB_NAME}
+                Build #: ${env.BUILD_NUMBER}
+                Build URL: ${env.BUILD_URL}
+                Commit Author: ${commitAuthor}
+                Commit Message: ${commitMessage}
+                """.stripIndent()
+                
+                sendDiscordNotification(description, 65280)
+            }
         }
+        
+        // Send notification to Discord on build failure
+        failure {
+           node ('Master') {
+            script {
+                // Get the last commit information
+                def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true)?.trim()
+                def commitAuthor = sh(script: "git log -1 --pretty=%an", returnStdout: true)?.trim()
+
+                if (commitMessage == null || commitAuthor == null) {
+                    echo "Error: Unable to retrieve commit information. Please check your pipeline and environment."
+                    return
+                }
+
+                // Save build log to file
+                def logFile = "build-${env.BUILD_NUMBER}-log.txt"
+
+                try {
+                    // Read and save the copied log file
+                    def buildLog = sh(script: "cat /var/lib/jenkins/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log", returnStdout: true).trim()
+                    
+                    writeFile file: logFile, text: buildLog
+
+                    echo "Build log saved to ${logFile}."
+                }
+
+                catch (Exception ex) {
+                    echo "Error: Unable to retrieve build log. Please check your pipeline and environment."
+                    return
+                }
+
+                // Send Discord notification
+                def description = """
+                **Build Failed!**
+                Project Repo: ${env.JOB_NAME}
+                Build #: ${env.BUILD_NUMBER}
+                Build URL: ${env.BUILD_URL}
+                Commit Author: ${commitAuthor}
+                Commit Message: ${commitMessage}
+
+                See Full build log attached below.
+                """.stripIndent()
+                
+                // First send the message
+                sendDiscordNotification(description, 16711680)
+
+                // Then send the logfile as an attachment
+                try {
+                    sh """
+                        curl -X POST \
+                            -H "Content-Type: multipart/form-data" \
+                            -F "payload_json={\\"username\\":\\"Jenkins Bot\\"}" \
+                            -F "file=@${logFile}" \
+                            ${env.DISCORD_WEBHOOK} || echo 'Error during file upload'
+                    """
+                } 
+                
+                catch (Exception ex) {
+                    echo "Error: Unable to send file to Discord. Please check your pipeline and environment."
+                    return
+                }
+
+                // Clean up
+                sh "rm ${logFile}"
+                }
+            }
+        }
+    }        
+}
+
+ // Function to send notification to Discord
+def sendDiscordNotification(description, color) {
+    def payload = [
+        username: 'Jenkins Bot',
+        embeds: [[
+            description: description,
+            color: color,
+            footer: [
+                text: "Jenkins Pipeline"
+            ]
+        ]]
+    ]
+    
+    try {
+        httpRequest(
+            httpMode: 'POST',
+            url: "${env.FE_DISCORD_WEBHOOK}",
+            contentType: 'APPLICATION_JSON',
+            requestBody: groovy.json.JsonOutput.toJson(payload)
+        )
+    } 
+    
+    catch (Exception ex) {
+        echo "Error: Unable to send message to Discord. Please check your pipeline and environment."
     }
 }
