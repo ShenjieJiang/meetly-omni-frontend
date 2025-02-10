@@ -6,7 +6,7 @@ pipeline {
 
     environment {
         // BITBUCKET_URL    = "${env.FE_BITBUCKET_URL}"            // From Jenkins global environment variable
-        // BITBUCKET_BRANCH = "develop"                            // Change as needed - e.g. "main"
+        BITBUCKET_BRANCH = "develop"                            // Change as needed - e.g. "main"
         // AWS_REGION       = "${env.AWS_REGION}"                  // Can hardcode or use Jenkins global environment variable
         // AWS_CREDENTIALS  = credentials('UAT_AWS_CREDENTIALS')   // From AWS credentials ID in Jenkins
         // S3_BUCKET        = "${env.UAT_S3_BUCKET}"               // Use Jenkins global environment variable
