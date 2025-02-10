@@ -5,13 +5,13 @@ pipeline {
     }
 
     environment {
-        BITBUCKET_URL    = "${env.FE_BITBUCKET_URL}"            // From Jenkins global environment variable
-        BITBUCKET_BRANCH = "develop"                            // Change as needed - e.g. "main"
-        AWS_REGION       = "${env.AWS_REGION}"                  // Can hardcode or use Jenkins global environment variable
-        AWS_CREDENTIALS  = credentials('UAT_AWS_CREDENTIALS')   // From AWS credentials ID in Jenkins
-        S3_BUCKET        = "${env.UAT_S3_BUCKET}"               // Use Jenkins global environment variable
-        S3_WORKING_DIR   = "dist"                               // Change depending on build files
-        DISCORD_WEBHOOK  = "${env.FE_DISCORD_WEBHOOK}"          // From Jenkins global environment variable
+        // BITBUCKET_URL    = "${env.FE_BITBUCKET_URL}"            // From Jenkins global environment variable
+        // BITBUCKET_BRANCH = "develop"                            // Change as needed - e.g. "main"
+        // AWS_REGION       = "${env.AWS_REGION}"                  // Can hardcode or use Jenkins global environment variable
+        // AWS_CREDENTIALS  = credentials('UAT_AWS_CREDENTIALS')   // From AWS credentials ID in Jenkins
+        // S3_BUCKET        = "${env.UAT_S3_BUCKET}"               // Use Jenkins global environment variable
+        // S3_WORKING_DIR   = "dist"                               // Change depending on build files
+        // DISCORD_WEBHOOK  = "${env.FE_DISCORD_WEBHOOK}"          // From Jenkins global environment variable
     }
 
     stages {
@@ -46,18 +46,18 @@ pipeline {
             }
         }
 
-        stage('Deploy to AWS S3') {
-            steps {
-                echo "Deploy to AWS S3..."
-                withAWS(region: env.AWS_REGION, credentials: env.AWS_ACCESS_KEY_ID) {
-                    s3Delete(bucket: env.S3_BUCKET, path: "")
-                    s3Upload(
-                        bucket: env.S3_BUCKET,
-                        includePathPattern: '**/*',
-                        workingDir: "${WORKSPACE}"
-                    )
-                }
-            }
+        // stage('Deploy to AWS S3') {
+        //     steps {
+        //         echo "Deploy to AWS S3..."
+        //         withAWS(region: env.AWS_REGION, credentials: env.AWS_ACCESS_KEY_ID) {
+        //             s3Delete(bucket: env.S3_BUCKET, path: "")
+        //             s3Upload(
+        //                 bucket: env.S3_BUCKET,
+        //                 includePathPattern: '**/*',
+        //                 workingDir: "${WORKSPACE}"
+                    // )
+                // }
+            // }
         }
     }
 
