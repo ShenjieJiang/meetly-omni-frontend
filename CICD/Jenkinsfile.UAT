@@ -2,17 +2,16 @@ pipeline {
     agent any
     tools {
         nodejs 'NodeJS' 
-    } // reat:18.3.1     vite:^6.0.1
+    }
 
     environment {
-
-        PATH = "$NODE_HOME/bin:$PATH"
-        
-        AWS_ACCESS_KEY_ID     = credentials('aws-credentials').username // replace with your AWS Access Key
-        AWS_SECRET_ACCESS_KEY = credentials('aws-credentials').password  // replace with your AWS Secret Access Key
-        AWS_REGION            = 'ap-southeast-2'  // e.g., us-west-2, ap-southeast-2
-        S3_BUCKET             = 'www.meetlyomni.com'  // replace with your S3 bucket name
-        BITBUCKET_CREDENTIALS_ID=credentials('bitbucket-credentials-id').password
+        BITBUCKET_URL    = "${env.FE_BITBUCKET_URL}"            // From Jenkins global environment variable
+        BITBUCKET_BRANCH = "develop"                            // Change as needed - e.g. "main"
+        AWS_REGION       = "${env.AWS_REGION}"                  // Can hardcode or use Jenkins global environment variable
+        AWS_CREDENTIALS  = credentials('UAT_AWS_CREDENTIALS')   // From AWS credentials ID in Jenkins
+        S3_BUCKET        = "${env.UAT_S3_BUCKET}"               // Use Jenkins global environment variable
+        S3_WORKING_DIR   = "dist"                               // Change depending on build files
+        DISCORD_WEBHOOK  = "${env.FE_DISCORD_WEBHOOK}"          // From Jenkins global environment variable
     }
 
     stages {
@@ -22,7 +21,12 @@ pipeline {
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: 'main']],
-                    userRemoteConfigs: [[url: 'https://github.com/ShenjieJiang/meetly-omni-frontend.git']]
+                    userRemoteConfigs: [
+                        [
+                            url: 'https://github.com/ShenjieJiang/meetly-omni-frontend.git',
+                            credentialsId: 'github-credentials-id' // 使用存储在 Jenkins 中的 GitHub 凭据
+                        ]
+                    ]
                 ])
             }
         }
@@ -30,37 +34,36 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo "Installing dependencies..."
-                sh 'npm install'  // 安装 npm 依赖
+                sh 'npm install'
             }
         }
 
         stage('Build') {
-
             steps {
                 echo "Building..."
                 sh 'node --version'
-                sh 'npm run build'  // 执行构建命令（假设 package.json 中有 build 脚本）
+                sh 'npm run build'
             }
         }
 
         stage('Deploy to AWS S3') {
             steps {
                 echo "Deploy to AWS S3..."
-                withAWS(region: env.AWS_region, credentials: env.AWS_credentials)
-                    s3Delete(bucket: env.S3_Bucket, path: "")
-
-                    s3Upload(bucket: env.S3_Bucket, 
-                    includePathPattern: '**/*', workingDir: "${S3_WORKING_DIR}" 
-
+                withAWS(region: env.AWS_REGION, credentials: env.AWS_ACCESS_KEY_ID) {
+                    s3Delete(bucket: env.S3_BUCKET, path: "")
+                    s3Upload(
+                        bucket: env.S3_BUCKET,
+                        includePathPattern: '**/*',
+                        workingDir: "${WORKSPACE}"
+                    )
+                }
             }
         }
     }
 
     post {
-        // Send notification to Discord on build success
         success {
             script {
-                // Get the last commit information
                 def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
                 def commitAuthor = sh(script: "git log -1 --pretty=%an", returnStdout: true).trim()
 
@@ -72,42 +75,31 @@ pipeline {
                 Commit Author: ${commitAuthor}
                 Commit Message: ${commitMessage}
                 """.stripIndent()
-                
+
                 sendDiscordNotification(description, 65280)
             }
         }
-        
-        // Send notification to Discord on build failure
+
         failure {
-           node ('Master') {
             script {
-                // Get the last commit information
                 def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true)?.trim()
                 def commitAuthor = sh(script: "git log -1 --pretty=%an", returnStdout: true)?.trim()
 
                 if (commitMessage == null || commitAuthor == null) {
-                    echo "Error: Unable to retrieve commit information. Please check your pipeline and environment."
+                    echo "Error: Unable to retrieve commit information."
                     return
                 }
 
-                // Save build log to file
                 def logFile = "build-${env.BUILD_NUMBER}-log.txt"
-
                 try {
-                    // Read and save the copied log file
                     def buildLog = sh(script: "cat /var/lib/jenkins/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log", returnStdout: true).trim()
-                    
                     writeFile file: logFile, text: buildLog
-
                     echo "Build log saved to ${logFile}."
-                }
-
-                catch (Exception ex) {
-                    echo "Error: Unable to retrieve build log. Please check your pipeline and environment."
+                } catch (Exception ex) {
+                    echo "Error: Unable to retrieve build log."
                     return
                 }
 
-                // Send Discord notification
                 def description = """
                 **Build Failed!**
                 Project Repo: ${env.JOB_NAME}
@@ -115,38 +107,31 @@ pipeline {
                 Build URL: ${env.BUILD_URL}
                 Commit Author: ${commitAuthor}
                 Commit Message: ${commitMessage}
-
                 See Full build log attached below.
                 """.stripIndent()
-                
-                // First send the message
+
                 sendDiscordNotification(description, 16711680)
 
-                // Then send the logfile as an attachment
                 try {
                     sh """
                         curl -X POST \
                             -H "Content-Type: multipart/form-data" \
                             -F "payload_json={\\"username\\":\\"Jenkins Bot\\"}" \
                             -F "file=@${logFile}" \
-                            ${env.DISCORD_WEBHOOK} || echo 'Error during file upload'
+                            ${env.DISCORD_WEBHOOK}
                     """
-                } 
-                
-                catch (Exception ex) {
-                    echo "Error: Unable to send file to Discord. Please check your pipeline and environment."
+                } catch (Exception ex) {
+                    echo "Error: Unable to send file to Discord."
                     return
                 }
 
-                // Clean up
                 sh "rm ${logFile}"
-                }
             }
         }
-    }        
+    }
 }
 
- // Function to send notification to Discord
+// Function to send notification to Discord
 def sendDiscordNotification(description, color) {
     def payload = [
         username: 'Jenkins Bot',
@@ -158,17 +143,15 @@ def sendDiscordNotification(description, color) {
             ]
         ]]
     ]
-    
+
     try {
         httpRequest(
             httpMode: 'POST',
-            url: "${env.FE_DISCORD_WEBHOOK}",
+            url: "${env.DISCORD_WEBHOOK}",
             contentType: 'APPLICATION_JSON',
             requestBody: groovy.json.JsonOutput.toJson(payload)
         )
-    } 
-    
-    catch (Exception ex) {
-        echo "Error: Unable to send message to Discord. Please check your pipeline and environment."
+    } catch (Exception ex) {
+        echo "Error: Unable to send message to Discord."
     }
 }
